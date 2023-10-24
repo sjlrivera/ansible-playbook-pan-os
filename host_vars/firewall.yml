@@ -1,0 +1,4 @@
+provider:
+  ip_address: "{{ inventory_hostname }}"
+  username: 'nobody-ansible'
+  password: 'Password123!'

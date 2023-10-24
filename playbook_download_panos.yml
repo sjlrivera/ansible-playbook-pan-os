@@ -1,0 +1,20 @@
+---
+- hosts: firewall
+  connection: local
+
+  collections:
+    - paloaltonetworks.panos
+
+  tasks:
+    - name: Load Variables
+      include_vars: host_vars/firewall.yml
+    - name: Load PAN-OS Version
+      include_vars: host_vars/panos_version.yml
+
+    - name: Download PAN-OS {{ version }}
+      paloaltonetworks.panos.panos_software:
+        provider: '{{ provider }}'
+        version: '{{ version }}'
+        sync_to_peer: true
+        install: false
+        restart: false

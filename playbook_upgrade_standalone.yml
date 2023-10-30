@@ -50,13 +50,13 @@
     provider:
       ip_address: '{{inventory_hostname}}'
       username: '{{user}}'
-      password: '{{pass}}'  
+      password: '{{pass}}' 
 
   collections:
     - paloaltonetworks.panos
 
   tasks:
-    - name: Check current software version
+    - name: Check Current Software Version
       panos_facts:
         provider: '{{provider}}'
         gather_subset: ['system']
@@ -65,20 +65,20 @@
     - debug:
         msg: '({{result_current.ansible_facts.ansible_net_hostname}}) is current software version: ({{result_current.ansible_facts.ansible_net_version}}) with uptime ({{result_current.ansible_facts.ansible_net_uptime}})'
 
-    - name: Backup device running configuration
+    - name: Backup Device Running Configuration
       panos_op:
         provider: '{{provider}}'
         cmd: 'save config to {{inventory_hostname}}-{{result_current.ansible_facts.ansible_net_version}}.xml'
       when: backup_config == 'y'
 
-    - name: Export configuration in Control Node
+    - name: Export Configuration in Control Node
       panos_export:
         provider: '{{provider}}'
         category: 'configuration'
-        filename: '{{inventory_hostname}}.xml'
+        filename: '{{inventory_hostname}}-{{result_current.ansible_facts.ansible_net_version}}.xml'
       when: backup_config == 'y'
 
-    - name: 'Download [{{download_target_software_version}}] | Install [{{install_target_software_version}}] | Restart [{{reboot_option}}] for software version: ({{target_software_version}})'
+    - name: 'Target Software Version: ({{target_software_version}}) | Download [{{download_target_software_version}}] | Install [{{install_target_software_version}}] | Reboot [{{reboot_option}}]'
       panos_software:
         provider: '{{provider}}'
         version: '{{target_software_version}}'
@@ -87,12 +87,12 @@
         install: '{{install_target_software_version}}'
         restart: '{{reboot_option}}'
 
-    - name: 'Pause for restart in {{seconds}}'
+    - name: 'Pause for Reboot in (30) Seconds'
       ansible.builtin.pause:
         seconds: 30
       when: reboot_option == 'y'
 
-    - name: Check to see if device is up and ready
+    - name: Check Device Status
       panos_op:
         provider: '{{provider}}'
         cmd: 'show chassis-ready'
@@ -103,7 +103,7 @@
       delay: 60
       when: reboot_option == 'y'
 
-    - name: Check latest software version
+    - name: Check Latest Software Version
       panos_facts:
         provider: '{{provider}}'
         gather_subset: ['system']
@@ -114,7 +114,7 @@
         msg: '({{result_latest.ansible_facts.ansible_net_hostname}}) is current lastest software version: ({{result_latest.ansible_facts.ansible_net_version}}) with uptime ({{result_latest.ansible_facts.ansible_net_uptime}})'
       when: reboot_option == 'y'  
 
-    - name: 'Delete previous software version: ({{result_current.ansible_facts.ansible_net_version}})'
+    - name: 'Delete Previous Software Version: ({{result_current.ansible_facts.ansible_net_version}})'
       panos_op:
         provider: '{{provider}}'
         cmd: 'delete software version {{result_current.ansible_facts.ansible_net_version}}'

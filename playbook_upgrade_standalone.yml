@@ -118,4 +118,4 @@
       panos_op:
         provider: '{{provider}}'
         cmd: 'delete software version {{result_current.ansible_facts.ansible_net_version}}'
-      when: previous_software_version == 'y'
+      when: previous_software_version == 'y' and reboot_option == 'y'

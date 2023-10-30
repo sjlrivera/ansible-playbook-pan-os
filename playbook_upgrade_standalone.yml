@@ -50,7 +50,7 @@
     provider:
       ip_address: '{{inventory_hostname}}'
       username: '{{user}}'
-      password: '{{pass}}' 
+      password: '{{pass}}'
 
   collections:
     - paloaltonetworks.panos

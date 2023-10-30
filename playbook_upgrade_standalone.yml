@@ -1,0 +1,120 @@
+---
+# Script Name: Automate PAN-OS Upgrade - Standalone
+# Author: Stephen John Rivera (Pen)
+# Date: October 27, 2023
+# Description: This script does something amazing and useful. It will automate boring task PAN-OS upgrade.
+
+# Credits:
+# - Thanks to GNOC individual contirbutors to support my ideas.
+# - Thanks to Raymond Velasquez for suggestions.
+
+- name: Download PAN-OS version 
+  hosts: firewall
+  connection: local
+  gather_facts: false
+
+  vars_prompt:
+  - name: user
+    prompt: Username
+    private: false
+  - name: pass
+    prompt: Password
+    private: true
+    unsafe: true
+  - name: target_software_version
+    prompt: Target software version
+    private: false
+  - name: download_target_software_version
+    prompt: Download target software version? [y/n] by default
+    private: false
+    default: 'y'
+  - name: install_target_software_version
+    prompt: Install target software version? [y/n] by default
+    private: false
+    default: 'y'
+  - name: backup_config
+    prompt: Do you want to backup running config? [y/n] by default
+    private: false
+    default: 'y'
+  - name: reboot_option
+    prompt: Do you want to reboot after install? [y/n] by default
+    private: false
+    default: 'n'
+  - name: previous_software_version
+    prompt: Do you want to delete previous software version? (y/n) by default
+    private: false
+    default: 'n'
+
+  vars:
+    provider:
+      ip_address: '{{inventory_hostname}}'
+      username: '{{user}}'
+      password: '{{pass}}'  
+
+  collections:
+    - paloaltonetworks.panos
+
+  tasks:
+    - name: Check current software version
+      panos_facts:
+        provider: '{{provider}}'
+        gather_subset: ['system']
+      register: result_current
+
+    - debug:
+        msg: '({{result_current.ansible_facts.ansible_net_hostname}}) is current software version: ({{result_current.ansible_facts.ansible_net_version}}) with uptime ({{result_current.ansible_facts.ansible_net_uptime}})'
+
+    - name: Backup device running configuration
+      panos_op:
+        provider: '{{provider}}'
+        cmd: 'save config to {{inventory_hostname}}.xml'
+      when: backup_config == 'y'
+
+    - name: Export configuration in Control Node
+      panos_export:
+        provider: '{{provider}}'
+        category: 'configuration'
+        filename: '{{inventory_hostname}}.xml'
+      when: backup_config == 'y'
+
+    - name: 'Download [{{download_target_software_version}}] | Install [{{install_target_software_version}}] | Restart [{{reboot_option}}] for software version: ({{target_software_version}})'
+      panos_software:
+        provider: '{{provider}}'
+        version: '{{target_software_version}}'
+        download: '{{download_target_software_version}}'
+        timeout: 7200
+        install: '{{install_target_software_version}}'
+        restart: '{{reboot_option}}'
+
+    - name: 'Pause for restart in {{seconds}}'
+      ansible.builtin.pause:
+        seconds: 30
+      when: reboot_option == 'y'
+
+    - name: Check to see if device is up and ready
+      panos_op:
+        provider: '{{provider}}'
+        cmd: 'show chassis-ready'
+      changed_when: false
+      register: result
+      until: result is not failed and (result.stdout | from_json).response.result == 'yes'
+      retries: 60
+      delay: 60
+      when: reboot_option == 'y'
+
+    - name: Check latest software version
+      panos_facts:
+        provider: '{{provider}}'
+        gather_subset: ['system']
+      register: result_latest
+      when: reboot_option == 'y'
+
+    - debug:
+        msg: '({{result_latest.ansible_facts.ansible_net_hostname}}) is current lastest software version: ({{result_latest.ansible_facts.ansible_net_version}}) with uptime ({{result_latest.ansible_facts.ansible_net_uptime}})'
+      when: reboot_option == 'y'  
+
+    - name: 'Delete previous software version: ({{result_current.ansible_facts.ansible_net_version}})'
+      panos_op:
+        provider: '{{provider}}'
+        cmd: 'delete software version {{result_current.ansible_facts.ansible_net_version}}'
+      when: previous_software_version == 'y'

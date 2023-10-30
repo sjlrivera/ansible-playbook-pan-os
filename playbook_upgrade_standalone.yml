@@ -1,7 +1,7 @@
 ---
 # Script Name: Automate PAN-OS Upgrade - Standalone
 # Author: Stephen John Rivera (Pen) 
-# GitHub: https://github.com/sjlrivera/ansible-playbook-panos/
+# GitHub: https://github.com/sjlrivera/ansible-playbook-pan-os/
 # Date: October 27, 2023
 # Description: This script does something amazing and useful. It will automate boring task PAN-OS upgrade.
 
@@ -9,7 +9,7 @@
 # - Thanks to GNOC individual contirbutors to support my ideas.
 # - Thanks to Raymond Velasquez for suggestions.
 
-- name: Download PAN-OS version 
+- name: Automate PAN-OS Upgrade - Standalone 
   hosts: firewall
   connection: local
   gather_facts: false
@@ -68,7 +68,7 @@
     - name: Backup device running configuration
       panos_op:
         provider: '{{provider}}'
-        cmd: 'save config to {{inventory_hostname}}.xml'
+        cmd: 'save config to {{inventory_hostname}}-{{result_current.ansible_facts.ansible_net_version}}.xml'
       when: backup_config == 'y'
 
     - name: Export configuration in Control Node

@@ -4,4 +4,4 @@ primary_ip_address: '192.168.0.12'
 secondary_ip_address: '192.168.0.13'
 
 # All other playbooks in this repository connect to 'ip_address', so define that as the primary device.
-ip_address: '{{ primary_ip_address }}'
+ip_address: '{{primary_ip_address}}'

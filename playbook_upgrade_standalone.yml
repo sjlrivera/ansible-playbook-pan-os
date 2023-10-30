@@ -1,6 +1,7 @@
 ---
 # Script Name: Automate PAN-OS Upgrade - Standalone
-# Author: Stephen John Rivera (Pen)
+# Author: Stephen John Rivera (Pen) 
+# GitHub: https://github.com/sjlrivera/ansible-playbook-panos/
 # Date: October 27, 2023
 # Description: This script does something amazing and useful. It will automate boring task PAN-OS upgrade.
 

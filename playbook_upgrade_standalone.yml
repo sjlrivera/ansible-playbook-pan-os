@@ -1,5 +1,5 @@
 ---
-# Script Name: Automate PAN-OS Upgrade - Standalone
+# Script Name: Automate PAN-OS Upgrade - Standalone (Single)
 # Author: Stephen John Rivera (Pen) 
 # GitHub: https://github.com/sjlrivera/ansible-playbook-pan-os/
 # Date: October 27, 2023
@@ -7,7 +7,6 @@
 
 # Credits:
 # - Thanks to GNOC individual contirbutors to support my ideas.
-# - Thanks to Raymond Velasquez for suggestions.
 
 - name: Automate PAN-OS Upgrade - Standalone 
   hosts: firewall
@@ -42,7 +41,7 @@
     private: false
     default: 'n'
   - name: previous_software_version
-    prompt: Do you want to delete previous software version? (y/n) by default
+    prompt: Do you want to delete previous software version? [y/n] by default
     private: false
     default: 'n'
 

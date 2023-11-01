@@ -107,7 +107,7 @@
         filename: '{{secondary_ip_address}}-{{result_current_secondary.ansible_facts.ansible_net_version}}.xml'
       when: backup_config == 'y'
 
-    - name: ' Download Target Software Version: ({{target_software_version}}) and Sync to Peer '
+    - name: 'Download Target Software Version: ({{target_software_version}}) and Sync to Peer'
       panos_software:
         provider: '{{primary}}'
         version: '{{target_software_version}}'
@@ -141,7 +141,7 @@
         timeout: 7200
         install: '{{install_target_software_version}}'
 
-    - name: Reboot in 30 Seconds
+    - name: Pause Reboot in 30 Seconds
       ansible.builtin.pause:
         seconds: 30
 
@@ -196,7 +196,7 @@
         timeout: 7200
         install: '{{install_target_software_version}}'
 
-    - name: Reboot in 30 Seconds
+    - name: Pause Reboot in 30 Seconds
       ansible.builtin.pause:
         seconds: 30
 
